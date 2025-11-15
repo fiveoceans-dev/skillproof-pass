@@ -56,6 +56,7 @@ export type Database = {
       linked_accounts: {
         Row: {
           created_at: string
+          game_name: string | null
           id: string
           puuid: string | null
           rank_division: string | null
@@ -63,6 +64,7 @@ export type Database = {
           region: string
           summoner_id: string | null
           summoner_name: string
+          tag_line: string | null
           updated_at: string
           user_id: string
           verification_code: string | null
@@ -70,6 +72,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          game_name?: string | null
           id?: string
           puuid?: string | null
           rank_division?: string | null
@@ -77,6 +80,7 @@ export type Database = {
           region: string
           summoner_id?: string | null
           summoner_name: string
+          tag_line?: string | null
           updated_at?: string
           user_id: string
           verification_code?: string | null
@@ -84,6 +88,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          game_name?: string | null
           id?: string
           puuid?: string | null
           rank_division?: string | null
@@ -91,6 +96,7 @@ export type Database = {
           region?: string
           summoner_id?: string | null
           summoner_name?: string
+          tag_line?: string | null
           updated_at?: string
           user_id?: string
           verification_code?: string | null

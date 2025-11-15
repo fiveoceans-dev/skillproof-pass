@@ -6,9 +6,28 @@ const corsHeaders = {
 };
 
 interface LinkAccountRequest {
-  summonerName: string;
+  gameName: string;
+  tagLine: string;
   region: string;
   userId: string;
+}
+
+// Map platform routing region for Riot Account API
+function getRoutingRegion(region: string): string {
+  const regionMap: { [key: string]: string } = {
+    'na1': 'americas',
+    'br1': 'americas',
+    'la1': 'americas',
+    'la2': 'americas',
+    'euw1': 'europe',
+    'eun1': 'europe',
+    'tr1': 'europe',
+    'ru': 'europe',
+    'kr': 'asia',
+    'jp1': 'asia',
+    'oc1': 'sea',
+  };
+  return regionMap[region] || 'americas';
 }
 
 Deno.serve(async (req) => {
@@ -23,22 +42,43 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { summonerName, region, userId }: LinkAccountRequest = await req.json();
+    const { gameName, tagLine, region, userId }: LinkAccountRequest = await req.json();
 
-    if (!summonerName || !region || !userId) {
+    if (!gameName || !tagLine || !region || !userId) {
       throw new Error('Missing required fields');
     }
 
-    console.log(`Fetching summoner: ${summonerName} in region: ${region}`);
+    console.log(`Fetching account: ${gameName}#${tagLine} in region: ${region}`);
 
-    // Fetch summoner data from Riot API
+    // Fetch Riot API key
     const riotApiKey = Deno.env.get('LOL_API');
     if (!riotApiKey) {
       throw new Error('Riot API key not configured');
     }
 
+    // Step 1: Get account data (PUUID) from Riot Account API
+    const routingRegion = getRoutingRegion(region);
+    const accountResponse = await fetch(
+      `https://${routingRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
+      {
+        headers: {
+          'X-Riot-Token': riotApiKey,
+        },
+      }
+    );
+
+    if (!accountResponse.ok) {
+      const errorText = await accountResponse.text();
+      console.error('Riot Account API error:', errorText);
+      throw new Error(accountResponse.status === 404 ? 'Riot ID not found' : 'Failed to fetch account data');
+    }
+
+    const accountData = await accountResponse.json();
+    console.log('Account found:', accountData.gameName, '#', accountData.tagLine);
+
+    // Step 2: Get summoner data using PUUID
     const summonerResponse = await fetch(
-      `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${encodeURIComponent(summonerName)}`,
+      `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountData.puuid}`,
       {
         headers: {
           'X-Riot-Token': riotApiKey,
@@ -48,8 +88,8 @@ Deno.serve(async (req) => {
 
     if (!summonerResponse.ok) {
       const errorText = await summonerResponse.text();
-      console.error('Riot API error:', errorText);
-      throw new Error(summonerResponse.status === 404 ? 'Summoner not found' : 'Failed to fetch summoner data');
+      console.error('Summoner API error:', errorText);
+      throw new Error('Failed to fetch summoner data');
     }
 
     const summonerData = await summonerResponse.json();
@@ -100,6 +140,9 @@ Deno.serve(async (req) => {
         .update({
           user_id: userId,
           summoner_name: summonerData.name,
+          game_name: accountData.gameName,
+          tag_line: accountData.tagLine,
+          puuid: accountData.puuid,
           region,
           rank_tier: rankTier,
           rank_division: rankDivision,
@@ -127,8 +170,10 @@ Deno.serve(async (req) => {
       .insert({
         user_id: userId,
         summoner_name: summonerData.name,
+        game_name: accountData.gameName,
+        tag_line: accountData.tagLine,
         summoner_id: summonerData.id,
-        puuid: summonerData.puuid,
+        puuid: accountData.puuid,
         region,
         rank_tier: rankTier,
         rank_division: rankDivision,

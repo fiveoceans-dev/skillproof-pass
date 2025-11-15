@@ -77,6 +77,8 @@ Deno.serve(async (req) => {
       .insert({
         user_id: newUser.user.id,
         summoner_name: 'DemoSummoner',
+        game_name: 'DemoSummoner',
+        tag_line: 'NA1',
         summoner_id: 'demo_summoner_id_' + Date.now(),
         puuid: 'demo_puuid_' + Date.now(),
         region: 'na1',

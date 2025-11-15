@@ -20,7 +20,8 @@ interface LinkedAccount {
 
 export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
   const [step, setStep] = useState(1);
-  const [summonerName, setSummonerName] = useState("");
+  const [gameName, setGameName] = useState("");
+  const [tagLine, setTagLine] = useState("");
   const [region, setRegion] = useState("na1");
   const [loading, setLoading] = useState(false);
   const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
@@ -46,11 +47,11 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
   };
 
   const handleLinkAccount = async () => {
-    if (!summonerName.trim()) {
+    if (!gameName.trim() || !tagLine.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please enter a summoner name",
+        description: "Please enter both game name and tagline",
       });
       return;
     }
@@ -60,7 +61,8 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
     try {
       const { data, error } = await supabase.functions.invoke("link-lol-account", {
         body: {
-          summonerName: summonerName.trim(),
+          gameName: gameName.trim(),
+          tagLine: tagLine.trim(),
           region,
           userId,
         },
@@ -208,7 +210,7 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
           <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mx-auto mb-4 font-bold">
             1
           </div>
-          <h3 className="font-semibold mb-2">Enter Summoner Name</h3>
+          <h3 className="font-semibold mb-2">Enter Riot ID</h3>
           {step > 1 && <CheckCircle2 className="h-5 w-5 text-primary mx-auto mt-3" />}
         </div>
 
@@ -237,7 +239,7 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
             Link New League Account
           </CardTitle>
           <CardDescription>
-            Enter your summoner name to begin the verification process
+            Enter your Riot ID (Game Name#Tagline) to begin the verification process
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -250,12 +252,24 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="summoner">Summoner Name</Label>
+              <Label htmlFor="gameName">Game Name</Label>
               <Input
-                id="summoner"
-                placeholder="Enter your summoner name"
-                value={summonerName}
-                onChange={(e) => setSummonerName(e.target.value)}
+                id="gameName"
+                placeholder="e.g., Faker"
+                value={gameName}
+                onChange={(e) => setGameName(e.target.value)}
+                className="bg-background/50"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tagLine">Tagline</Label>
+              <Input
+                id="tagLine"
+                placeholder="e.g., KR1"
+                value={tagLine}
+                onChange={(e) => setTagLine(e.target.value)}
                 className="bg-background/50"
                 disabled={loading}
               />
@@ -280,7 +294,7 @@ export const LinkAccountWorkflow = ({ userId }: { userId: string }) => {
 
             <Button
               onClick={handleLinkAccount}
-              disabled={loading || !summonerName.trim()}
+              disabled={loading || !gameName.trim() || !tagLine.trim()}
               className="w-full"
             >
               {loading ? (
