@@ -63,7 +63,7 @@ export type Database = {
           rank_tier: string | null
           region: string
           summoner_id: string | null
-          summoner_name: string
+          summoner_name: string | null
           tag_line: string | null
           updated_at: string
           user_id: string
@@ -79,7 +79,7 @@ export type Database = {
           rank_tier?: string | null
           region: string
           summoner_id?: string | null
-          summoner_name: string
+          summoner_name?: string | null
           tag_line?: string | null
           updated_at?: string
           user_id: string
@@ -95,7 +95,7 @@ export type Database = {
           rank_tier?: string | null
           region?: string
           summoner_id?: string | null
-          summoner_name?: string
+          summoner_name?: string | null
           tag_line?: string | null
           updated_at?: string
           user_id?: string

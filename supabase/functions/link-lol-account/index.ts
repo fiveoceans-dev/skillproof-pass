@@ -104,7 +104,11 @@ Deno.serve(async (req) => {
     }
 
     const summonerData = await summonerResponse.json();
-    console.log('Summoner found:', summonerData.name);
+    console.log('Summoner data received:', JSON.stringify(summonerData));
+    
+    // Use name from summoner data, or fall back to gameName
+    const summonerName = summonerData.name || accountData.gameName;
+    console.log('Summoner name:', summonerName);
 
     // Fetch rank data
     let rankTier = null;
@@ -150,7 +154,7 @@ Deno.serve(async (req) => {
         .from('linked_accounts')
         .update({
           user_id: userId,
-          summoner_name: summonerData.name,
+          summoner_name: summonerName,
           game_name: accountData.gameName,
           tag_line: accountData.tagLine,
           puuid: accountData.puuid,
@@ -180,7 +184,7 @@ Deno.serve(async (req) => {
       .from('linked_accounts')
       .insert({
         user_id: userId,
-        summoner_name: summonerData.name,
+        summoner_name: summonerName,
         game_name: accountData.gameName,
         tag_line: accountData.tagLine,
         summoner_id: summonerData.id,
