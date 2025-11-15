@@ -14,7 +14,114 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      badges: {
+        Row: {
+          badge_type: string
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          minted: boolean | null
+          minted_at: string | null
+          name: string
+          rarity: string
+          user_id: string
+        }
+        Insert: {
+          badge_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          minted?: boolean | null
+          minted_at?: string | null
+          name: string
+          rarity: string
+          user_id: string
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          minted?: boolean | null
+          minted_at?: string | null
+          name?: string
+          rarity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      linked_accounts: {
+        Row: {
+          created_at: string
+          id: string
+          puuid: string | null
+          rank_division: string | null
+          rank_tier: string | null
+          region: string
+          summoner_id: string | null
+          summoner_name: string
+          updated_at: string
+          user_id: string
+          verification_code: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          puuid?: string | null
+          rank_division?: string | null
+          rank_tier?: string | null
+          region: string
+          summoner_id?: string | null
+          summoner_name: string
+          updated_at?: string
+          user_id: string
+          verification_code?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          puuid?: string | null
+          rank_division?: string | null
+          rank_tier?: string | null
+          region?: string
+          summoner_id?: string | null
+          summoner_name?: string
+          updated_at?: string
+          user_id?: string
+          verification_code?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          username: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          updated_at?: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
