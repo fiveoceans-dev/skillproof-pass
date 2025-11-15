@@ -38,9 +38,19 @@ export function VerificationModal({
           <Alert className="bg-primary/10 border-primary/30">
             <Info className="h-4 w-4 text-primary" />
             <AlertDescription>
-              <div className="space-y-2">
-                <p className="font-semibold text-foreground">Your Verification Code:</p>
-                <p className="text-3xl font-bold text-primary">{verificationCode}</p>
+              <div className="space-y-3">
+                <p className="font-semibold text-foreground">Change your profile icon to:</p>
+                <div className="flex items-center gap-4 p-4 bg-background rounded-lg border border-primary/20">
+                  <img
+                    src={`http://ddragon.leagueoflegends.com/cdn/13.23.1/img/profileicon/${verificationCode}.png`}
+                    alt={`Profile icon ${verificationCode}`}
+                    className="w-20 h-20 rounded-lg border-2 border-primary shadow-lg"
+                  />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Icon Number:</p>
+                    <p className="text-3xl font-bold text-primary">#{verificationCode}</p>
+                  </div>
+                </div>
               </div>
             </AlertDescription>
           </Alert>
@@ -50,7 +60,7 @@ export function VerificationModal({
             <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
               <li>Open your League of Legends client</li>
               <li>Go to your profile settings</li>
-              <li>Change your profile icon to icon #{verificationCode}</li>
+              <li>Change your profile icon to the one shown above</li>
               <li>Click "Verify Ownership" below</li>
             </ol>
           </div>
