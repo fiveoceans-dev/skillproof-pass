@@ -28,6 +28,16 @@ export default function Auth() {
     });
   }, [navigate]);
 
+  const handleDemoLogin = () => {
+    setEmail("demo@monad.passport");
+    setPassword("demo123456");
+    setIsLogin(true);
+    toast({
+      title: "Demo Credentials Loaded",
+      description: "Click 'Login' to sign in with demo account",
+    });
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -160,6 +170,25 @@ export default function Auth() {
                 disabled={loading}
               >
                 {loading ? "Loading..." : isLogin ? "Login" : "Sign Up"}
+              </Button>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleDemoLogin}
+                disabled={loading}
+              >
+                Try Demo Account
               </Button>
 
               <div className="text-center text-sm">
