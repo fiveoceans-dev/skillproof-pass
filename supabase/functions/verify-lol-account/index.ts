@@ -58,16 +58,21 @@ Deno.serve(async (req) => {
       throw new Error('Riot API key not configured');
     }
 
-    const summonerResponse = await fetch(
-      `https://${linkedAccount.region}.api.riotgames.com/lol/summoner/v4/summoners/${linkedAccount.summoner_id}`,
-      {
-        headers: {
-          'X-Riot-Token': riotApiKey,
-        },
-      }
-    );
+    // Use PUUID to fetch summoner data (same as link function)
+    const summonerUrl = `https://${linkedAccount.region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${linkedAccount.puuid}`;
+    console.log('Fetching summoner from:', summonerUrl);
+
+    const summonerResponse = await fetch(summonerUrl, {
+      headers: {
+        'X-Riot-Token': riotApiKey,
+      },
+    });
+
+    console.log('Summoner API response status:', summonerResponse.status);
 
     if (!summonerResponse.ok) {
+      const errorText = await summonerResponse.text();
+      console.error('Summoner API error:', errorText);
       throw new Error('Failed to fetch summoner data');
     }
 
