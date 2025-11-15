@@ -72,18 +72,38 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
     setAttempted(true);
     setErrorMsg(null);
 
-    // Ensure correct network
-    if (chainId !== monadTestnet.id) {
-      console.log('⚠️ Wrong network detected. Current:', chainId, 'Required:', monadTestnet.id);
+    // Ensure correct network - this will prompt the wallet to switch
+    const currentChainId = chainId;
+    console.log('🔍 Current chain ID:', currentChainId, 'Required:', monadTestnet.id);
+    
+    if (currentChainId !== monadTestnet.id) {
+      console.log('⚠️ Wrong network detected. Requesting switch to Monad testnet...');
       try {
-        console.log('🔄 Attempting to switch to Monad testnet...');
-        await switchChain({ chainId: monadTestnet.id });
-        console.log('✅ Network switched successfully');
-        toast({ title: "Network Switched", description: `Switched to ${monadTestnet.name}` });
+        // Request the user to switch network in their wallet
+        const result = await switchChain({ chainId: monadTestnet.id });
+        console.log('✅ Network switch request completed:', result);
+        
+        // Wait a moment for the wallet to update
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        toast({ 
+          title: "Network Switched", 
+          description: `Switched to ${monadTestnet.name}. You can now proceed with the transaction.` 
+        });
+        
+        // Important: Don't proceed with transaction automatically after switch
+        // Let user click the button again to ensure they're ready
+        setAttempted(false);
+        return;
       } catch (e: any) {
         console.error('❌ Network switch failed:', e);
-        setErrorMsg("Please switch your wallet to Monad testnet and try again.");
-        toast({ variant: "destructive", title: "Wrong Network", description: "Switch to Monad testnet to continue." });
+        setErrorMsg(`Failed to switch to Monad testnet. Please manually switch your wallet to ${monadTestnet.name} and try again.`);
+        toast({ 
+          variant: "destructive", 
+          title: "Network Switch Required", 
+          description: `Please switch to ${monadTestnet.name} in your wallet and try again.` 
+        });
+        setAttempted(false);
         return;
       }
     }
