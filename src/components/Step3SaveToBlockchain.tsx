@@ -2,10 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Shield, Info, Loader2, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { Shield, Info, Loader2, CheckCircle2, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import badgeIcon from "@/assets/badge-icon.png";
+import { useAccount, useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
+import { supabase } from "@/integrations/supabase/client";
+import { parseEther, encodeFunctionData, keccak256, toHex } from "viem";
+import { monadTestnet } from "@/lib/wagmi-config";
 
 interface Step3Props {
   canProceed: boolean;
@@ -15,29 +19,83 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
   const [storeAchievements, setStoreAchievements] = useState(true);
   const [mintNFT, setMintNFT] = useState(true);
   const [generateZK, setGenerateZK] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string>("");
   const { toast } = useToast();
+  const { address } = useAccount();
+  const { data: hash, isPending, sendTransaction } = useSendTransaction();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
 
-  const handleSaveToBlockchain = async () => {
-    setLoading(true);
-    
-    // Simulate blockchain transaction
-    setTimeout(() => {
-      // Generate mock transaction hash
-      const mockTxHash = `0x${Array.from({ length: 64 }, () => 
-        Math.floor(Math.random() * 16).toString(16)
-      ).join('')}`;
-      
-      setTransactionHash(mockTxHash);
-      setLoading(false);
+  // Update transaction hash and success state when transaction is confirmed
+  useEffect(() => {
+    if (isConfirmed && hash) {
+      setTransactionHash(hash);
       setSuccess(true);
       toast({
         title: "Success!",
         description: "Your credentials are now stored on Monad Testnet.",
       });
-    }, 2000);
+    }
+  }, [isConfirmed, hash, toast]);
+
+  const handleSaveToBlockchain = async () => {
+    if (!address) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please connect your wallet first",
+      });
+      return;
+    }
+
+    try {
+      // Fetch user's verified linked accounts
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      const { data: linkedAccounts, error } = await supabase
+        .from("linked_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("verified", true);
+
+      if (error) throw error;
+      if (!linkedAccounts || linkedAccounts.length === 0) {
+        throw new Error("No verified accounts found");
+      }
+
+      // Create a hash of the credentials data
+      const credentialsData = {
+        accounts: linkedAccounts.map(acc => ({
+          gameName: acc.game_name,
+          tagLine: acc.tag_line,
+          region: acc.region,
+          rank: `${acc.rank_tier} ${acc.rank_division}`,
+        })),
+        timestamp: Date.now(),
+        walletAddress: address,
+      };
+
+      // Hash the credentials
+      const dataString = JSON.stringify(credentialsData);
+      const dataHash = keccak256(toHex(dataString));
+
+      // Send transaction with credentials hash in data field
+      sendTransaction({
+        to: address, // Send to self to store data
+        value: parseEther("0"), // No value transfer
+        data: dataHash, // Store hash in transaction data
+      });
+
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to save credentials",
+      });
+    }
   };
 
   if (!canProceed) {
@@ -59,6 +117,8 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
   }
 
   if (success) {
+    const explorerUrl = `${monadTestnet.blockExplorers.default.url}/tx/${transactionHash}`;
+    
     return (
       <div className="animate-fade-in">
         <Card className="glass-card border-primary/30">
@@ -76,7 +136,7 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
                 <p className="text-sm font-mono break-all">{transactionHash}</p>
               </div>
             </div>
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2 justify-center flex-wrap">
               <Button 
                 variant="outline" 
                 onClick={() => {
@@ -87,7 +147,14 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
                   });
                 }}
               >
-                Copy Transaction Hash
+                Copy Hash
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.open(explorerUrl, '_blank')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View on Explorer
               </Button>
               <Button variant="outline" onClick={() => setSuccess(false)}>
                 Save Another
@@ -182,14 +249,14 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
 
           <Button
             onClick={handleSaveToBlockchain}
-            disabled={loading || (!storeAchievements && !mintNFT)}
+            disabled={(isPending || isConfirming) || (!storeAchievements && !mintNFT)}
             className="w-full"
             size="lg"
           >
-            {loading ? (
+            {(isPending || isConfirming) ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Saving to Monad...
+                {isPending ? "Confirm in Wallet..." : "Saving to Monad..."}
               </>
             ) : (
               "Save to Monad"
