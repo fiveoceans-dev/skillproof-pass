@@ -3,35 +3,31 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Shield, LogOut, CheckCircle2, Info, Gamepad2, Wallet } from "lucide-react";
+import { Shield, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { LinkAccountWorkflow } from "@/components/LinkAccountWorkflow";
 import { WalletConnect } from "@/components/WalletConnect";
 import { NetworkStatus } from "@/components/NetworkStatus";
 import { useAccount } from 'wagmi';
-
-interface LinkedAccount {
-  id: string;
-  summoner_name: string;
-  region: string;
-  rank_tier: string | null;
-  rank_division: string | null;
-  verified: boolean;
-}
+import { StepIndicator } from "@/components/StepIndicator";
+import { Step1LinkAccount } from "@/components/Step1LinkAccount";
+import { Step2ConnectWallet } from "@/components/Step2ConnectWallet";
+import { Step3SaveToBlockchain } from "@/components/Step3SaveToBlockchain";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isConnected } = useAccount();
-  
-  const hasVerifiedAccount = linkedAccounts.some(acc => acc.verified);
-  const canSaveToBlockchain = hasVerifiedAccount && isConnected;
+
+  const steps = [
+    { number: 1, title: "Link Game Account", description: "Connect your League account" },
+    { number: 2, title: "Connect Wallet", description: "Link your Web3 wallet" },
+    { number: 3, title: "Save to Blockchain", description: "Store credentials on-chain" },
+  ];
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -42,8 +38,6 @@ export default function Dashboard() {
         
         if (!session) {
           navigate("/auth");
-        } else {
-          fetchLinkedAccounts(session.user.id);
         }
       }
     );
@@ -56,26 +50,20 @@ export default function Dashboard() {
 
       if (!session) {
         navigate("/auth");
-      } else {
-        fetchLinkedAccounts(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const fetchLinkedAccounts = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("linked_accounts")
-      .select("*")
-      .eq("user_id", userId);
+  const handleStep1Complete = () => {
+    setCompletedSteps(prev => [...prev, 1]);
+    setCurrentStep(2);
+  };
 
-    if (error) {
-      console.error("Error fetching linked accounts:", error);
-      return;
-    }
-
-    setLinkedAccounts(data || []);
+  const handleStep2Complete = () => {
+    setCompletedSteps(prev => [...prev, 2]);
+    setCurrentStep(3);
   };
 
   const handleLogout = async () => {
@@ -118,9 +106,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-4">
             <NetworkStatus />
-            <span className="text-sm text-muted-foreground hidden sm:inline">
-              {user.email}
-            </span>
+            <WalletConnect />
             <Button variant="ghost" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
@@ -129,173 +115,37 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <main className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Header */}
-            <div className="text-center animate-fade-in-up">
-              <h1 className="text-4xl font-bold mb-4 glow-text">Dashboard</h1>
-              <p className="text-muted-foreground text-lg">
-                Complete these steps to save your gaming credentials on-chain
-              </p>
-            </div>
-
-            {/* Progress Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className={`glass-card ${hasVerifiedAccount ? 'border-primary/50' : 'border-border'}`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                      hasVerifiedAccount ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {hasVerifiedAccount ? <CheckCircle2 className="h-5 w-5" /> : <span className="font-bold">1</span>}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">Link Game Account</p>
-                      <p className="text-xs text-muted-foreground">
-                        {hasVerifiedAccount ? 'Complete' : 'Required'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className={`glass-card ${isConnected ? 'border-primary/50' : 'border-border'}`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                      isConnected ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {isConnected ? <CheckCircle2 className="h-5 w-5" /> : <span className="font-bold">2</span>}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">Connect Wallet</p>
-                      <p className="text-xs text-muted-foreground">
-                        {isConnected ? 'Complete' : 'Required'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className={`glass-card ${canSaveToBlockchain ? 'border-primary/50' : 'border-border'}`}>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-                      canSaveToBlockchain ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
-                    }`}>
-                      <span className="font-bold">3</span>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm">Save to Blockchain</p>
-                      <p className="text-xs text-muted-foreground">
-                        {canSaveToBlockchain ? 'Ready' : 'Complete steps 1 & 2'}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Step 1: Link Game Account */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  hasVerifiedAccount ? 'bg-primary/20 text-primary' : 'bg-primary text-primary-foreground'
-                }`}>
-                  {hasVerifiedAccount ? <CheckCircle2 className="h-4 w-4" /> : <Gamepad2 className="h-4 w-4" />}
-                </div>
-                <h2 className="text-2xl font-bold">Step 1: Link Your Game Account</h2>
-              </div>
-              <LinkAccountWorkflow userId={user.id} />
-            </div>
-
-            {/* Step 2: Connect Wallet */}
-            <div className={`space-y-4 ${!hasVerifiedAccount ? 'opacity-50 pointer-events-none' : ''}`}>
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  isConnected ? 'bg-primary/20 text-primary' : 'bg-primary text-primary-foreground'
-                }`}>
-                  {isConnected ? <CheckCircle2 className="h-4 w-4" /> : <Wallet className="h-4 w-4" />}
-                </div>
-                <h2 className="text-2xl font-bold">Step 2: Connect Your Wallet</h2>
-              </div>
-              <Card className="glass-card border-primary/30">
-                <CardHeader>
-                  <CardDescription>
-                    Connect your Web3 wallet to Monad Testnet
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <WalletConnect />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Step 3: Save to Blockchain */}
-            <div className={`space-y-4 ${!canSaveToBlockchain ? 'opacity-50 pointer-events-none' : ''}`}>
-              <div className="flex items-center gap-3">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                  canSaveToBlockchain ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                }`}>
-                  <Shield className="h-4 w-4" />
-                </div>
-                <h2 className="text-2xl font-bold">Step 3: Save to Blockchain</h2>
-              </div>
-              
-              <Card className="glass-card border-primary/30">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-primary" />
-                    Player Data Storage
-                  </CardTitle>
-                  <CardDescription>
-                    Mint your verified gaming credentials as NFTs on Monad Testnet
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {!canSaveToBlockchain && (
-                    <Alert className="bg-muted/50 border-accent/30">
-                      <Info className="h-4 w-4 text-accent" />
-                      <AlertDescription>
-                        Complete steps 1 and 2 to unlock blockchain storage
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  
-                  {canSaveToBlockchain && linkedAccounts.length > 0 && (
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">Accounts ready to save:</p>
-                      {linkedAccounts.filter(acc => acc.verified).map((account) => (
-                        <div key={account.id} className="p-3 rounded-lg bg-muted/50 border border-border flex items-center justify-between">
-                          <div>
-                            <p className="font-medium">{account.summoner_name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {account.region.toUpperCase()} • {account.rank_tier} {account.rank_division}
-                            </p>
-                          </div>
-                          <CheckCircle2 className="h-5 w-5 text-primary" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <Button 
-                    className="w-full"
-                    disabled={!canSaveToBlockchain}
-                    onClick={() => {
-                      toast({
-                        title: "Coming Soon",
-                        description: "Smart contract deployment is in progress. This feature will be available soon!",
-                      });
-                    }}
-                  >
-                    Save to Blockchain
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+      <main className="container mx-auto px-4 pt-24 pb-12">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="text-center mb-8 animate-fade-in">
+            <h1 className="text-4xl font-bold mb-2 glow-text">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Complete these steps to save your verified League credentials on-chain
+            </p>
           </div>
+
+          <StepIndicator 
+            steps={steps} 
+            currentStep={currentStep} 
+            completedSteps={completedSteps} 
+          />
+
+          {currentStep === 1 && user && (
+            <Step1LinkAccount 
+              userId={user.id} 
+              onComplete={handleStep1Complete}
+            />
+          )}
+
+          {currentStep === 2 && (
+            <Step2ConnectWallet onComplete={handleStep2Complete} />
+          )}
+
+          {currentStep === 3 && (
+            <Step3SaveToBlockchain 
+              canProceed={completedSteps.includes(1) && completedSteps.includes(2)}
+            />
+          )}
         </div>
       </main>
     </div>
