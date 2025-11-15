@@ -26,7 +26,7 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
   const { toast } = useToast();
   const { address } = useAccount();
   const chainId = useChainId();
-  const { switchChain, switchChainAsync, isPending: isSwitching } = useSwitchChain();
+  const { switchChainAsync, isPending: isSwitching } = useSwitchChain();
   const { data: hash, isPending, sendTransaction } = useSendTransaction();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
@@ -72,40 +72,25 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
     setAttempted(true);
     setErrorMsg(null);
 
-    // Ensure correct network - this will prompt the wallet to switch
-    const currentChainId = chainId;
-    console.log('🔍 Current chain ID:', currentChainId, 'Required:', monadTestnet.id);
-    
-    if (currentChainId !== monadTestnet.id) {
-      console.log('⚠️ Wrong network detected. Requesting switch to Monad testnet...');
-      try {
-        // Request the user to switch network in their wallet
-        const result = await switchChain({ chainId: monadTestnet.id });
-        console.log('✅ Network switch request completed:', result);
-        
-        // Wait a moment for the wallet to update
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        toast({ 
-          title: "Network Switched", 
-          description: `Switched to ${monadTestnet.name}. You can now proceed with the transaction.` 
-        });
-        
-        // Important: Don't proceed with transaction automatically after switch
-        // Let user click the button again to ensure they're ready
-        setAttempted(false);
-        return;
-      } catch (e: any) {
-        console.error('❌ Network switch failed:', e);
-        setErrorMsg(`Failed to switch to Monad testnet. Please manually switch your wallet to ${monadTestnet.name} and try again.`);
-        toast({ 
-          variant: "destructive", 
-          title: "Network Switch Required", 
-          description: `Please switch to ${monadTestnet.name} in your wallet and try again.` 
-        });
-        setAttempted(false);
-        return;
-      }
+    // Ensure wallet is on Monad Testnet (force-check by requesting a switch)
+    try {
+      const before = (window as any)?.ethereum?.chainId;
+      console.log('🔁 Ensuring Monad chain. App chainId:', chainId, 'Wallet chainId:', before, 'Target:', monadTestnet.id);
+      await switchChainAsync({ chainId: monadTestnet.id });
+      // Give wallet/provider a brief moment to settle
+      await new Promise((r) => setTimeout(r, 400));
+      const after = (window as any)?.ethereum?.chainId;
+      console.log('✅ Chain ready. Wallet chainId after switch:', after);
+    } catch (e: any) {
+      console.error('❌ Could not switch to Monad Testnet:', e);
+      setErrorMsg(`Please switch your wallet to ${monadTestnet.name} (chain ${monadTestnet.id}) and try again.`);
+      toast({
+        variant: 'destructive',
+        title: 'Network Switch Required',
+        description: e?.message || `Switch to ${monadTestnet.name} in your wallet and retry.`,
+      });
+      setAttempted(false);
+      return;
     }
 
     try {
@@ -151,25 +136,27 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
       console.log('📤 Calling sendTransaction - this should open your wallet...');
       
       // Send real transaction to Monad testnet with credentials hash in data field
-      const result = sendTransaction({
-        chainId: monadTestnet.id,
-        to: address, // Send to self to store data on-chain
-        value: parseEther("0"), // No value transfer, just data storage
-        data: dataHash, // Store credentials hash in transaction data
-      }, {
-        onSuccess: (hash) => {
-          console.log('✅ Transaction sent successfully, hash:', hash);
+      const result = sendTransaction(
+        {
+          to: address, // Send to self to store data on-chain
+          value: parseEther('0'), // No value transfer, just data storage
+          data: dataHash, // Store credentials hash in transaction data
         },
-        onError: (error) => {
-          console.error('❌ Transaction failed:', error);
-          setErrorMsg(error.message || 'Transaction failed');
-          toast({
-            variant: "destructive",
-            title: "Transaction Failed",
-            description: error.message || "Failed to send transaction",
-          });
+        {
+          onSuccess: (hash) => {
+            console.log('✅ Transaction sent successfully, hash:', hash);
+          },
+          onError: (error) => {
+            console.error('❌ Transaction failed:', error);
+            setErrorMsg(error.message || 'Transaction failed');
+            toast({
+              variant: 'destructive',
+              title: 'Transaction Failed',
+              description: error.message || 'Failed to send transaction',
+            });
+          },
         }
-      });
+      );
 
       console.log('📝 sendTransaction result:', result);
 
