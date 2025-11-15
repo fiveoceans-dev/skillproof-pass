@@ -1,108 +1,214 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Info, Shield, Lock, AlertTriangle } from "lucide-react";
+import { Shield, Lock, AlertTriangle, Eye, Database, FileCheck } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export const LegalSection = () => {
   return (
-    <section id="legal" className="py-20 bg-card/30">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto space-y-8">
+    <section id="legal" className="py-24 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/10 to-background" />
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center animate-fade-in-up">
-            <h2 className="text-4xl font-bold mb-4">Privacy & Compliance</h2>
-            <p className="text-muted-foreground text-lg">
-              Privacy-first. Riot-compliant. Your data, protected.
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
+              <Shield className="h-4 w-4" />
+              <span className="text-sm font-semibold">Privacy & Compliance</span>
+            </div>
+            <h2 className="text-5xl font-bold mb-4 glow-text">
+              Your Data, Secured
+            </h2>
+            <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
+              Privacy-first. Riot-compliant. Fully transparent about what we store and how we protect it.
             </p>
           </div>
 
-          <Alert className="border-primary/30 bg-card/50">
-            <Shield className="h-5 w-5 text-primary" />
-            <AlertTitle className="text-lg mb-2">Riot API Compliance</AlertTitle>
-            <AlertDescription className="space-y-2 text-sm">
-              <p>
-                monad.passport is compliant with <a href="https://developer.riotgames.com/policies/general" target="_blank" rel="noopener noreferrer" className="text-primary underline">Riot Games API Terms</a> and <a href="https://www.riotgames.com/en/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-primary underline">Terms of Service</a>:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>We never redistribute raw Riot match data or proprietary assets</li>
-                <li>Only derived, anonymized analytics are stored on-chain</li>
-                <li>We respect rate limits and implement aggressive caching</li>
-                <li>No claims of Riot endorsement or in-game monetary value</li>
-              </ul>
-            </AlertDescription>
-          </Alert>
+          {/* Riot Compliance Card */}
+          <Card className="glass-card border-primary/30 animate-fade-in-up">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-lg bg-primary/20">
+                  <Shield className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">Riot Games API Compliance</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Fully compliant with{" "}
+                    <a 
+                      href="https://developer.riotgames.com/policies/general" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-primary hover:underline"
+                    >
+                      Riot API Terms
+                    </a>
+                    {" "}and{" "}
+                    <a 
+                      href="https://www.riotgames.com/en/terms-of-service" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-primary hover:underline"
+                    >
+                      ToS
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50">
+                  <FileCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">No Raw Data Redistribution</p>
+                    <p className="text-xs text-muted-foreground">We never share raw match data or Riot assets</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50">
+                  <Database className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Derived Analytics Only</p>
+                    <p className="text-xs text-muted-foreground">Only anonymized, computed stats stored on-chain</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50">
+                  <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">Rate Limit Compliance</p>
+                    <p className="text-xs text-muted-foreground">Aggressive caching and respectful API usage</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50">
+                  <Eye className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm mb-1">No False Claims</p>
+                    <p className="text-xs text-muted-foreground">No endorsement claims or in-game value promises</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="glass-card animate-fade-in-up hover:animate-pulse-glow" style={{ animationDelay: '0.2s' }}>
+          {/* Data Storage Grid */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="glass-card border-accent/30 animate-fade-in-up hover:border-accent/50 transition-colors" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5 text-accent" />
-                  On-Chain
-                </CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-3 rounded-lg bg-accent/20">
+                    <Lock className="h-6 w-6 text-accent" />
+                  </div>
+                  <CardTitle className="text-2xl">On-Chain Data</CardTitle>
+                </div>
+                <p className="text-sm text-muted-foreground">Public, immutable, verifiable</p>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>✓ Identity registry</p>
-                <p>✓ Rank summaries</p>
-                <p>✓ Badge metadata</p>
-                <p>✓ ZK proof anchors</p>
+              <Separator className="mb-4" />
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="h-2 w-2 rounded-full bg-accent" />
+                  <span className="text-sm">Identity registry & wallet links</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="h-2 w-2 rounded-full bg-accent" />
+                  <span className="text-sm">Aggregated rank summaries</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="h-2 w-2 rounded-full bg-accent" />
+                  <span className="text-sm">Badge metadata & achievements</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-accent/5">
+                  <div className="h-2 w-2 rounded-full bg-accent" />
+                  <span className="text-sm">Zero-knowledge proof anchors</span>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="glass-card animate-fade-in-up hover:animate-pulse-glow" style={{ animationDelay: '0.4s' }}>
+            <Card className="glass-card border-destructive/30 animate-fade-in-up hover:border-destructive/50 transition-colors" style={{ animationDelay: '0.4s' }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-destructive" />
-                  Off-Chain
-                </CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-3 rounded-lg bg-destructive/20">
+                    <AlertTriangle className="h-6 w-6 text-destructive" />
+                  </div>
+                  <CardTitle className="text-2xl">Never Stored</CardTitle>
+                </div>
+                <p className="text-sm text-muted-foreground">Private, protected, off-chain</p>
               </CardHeader>
-              <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>✗ Raw match timelines</p>
-                <p>✗ PUUID identifiers</p>
-                <p>✗ Riot assets</p>
-                <p>✗ Personal info</p>
+              <Separator className="mb-4" />
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/5">
+                  <div className="h-2 w-2 rounded-full bg-destructive" />
+                  <span className="text-sm">Raw match timelines or replays</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/5">
+                  <div className="h-2 w-2 rounded-full bg-destructive" />
+                  <span className="text-sm">PUUID or sensitive identifiers</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/5">
+                  <div className="h-2 w-2 rounded-full bg-destructive" />
+                  <span className="text-sm">Riot proprietary assets or images</span>
+                </div>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-destructive/5">
+                  <div className="h-2 w-2 rounded-full bg-destructive" />
+                  <span className="text-sm">Personal information or PII</span>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          <Alert className="border-accent/30 bg-card/50">
-            <Info className="h-5 w-5 text-accent" />
-            <AlertTitle className="text-lg mb-2">User Consent & Privacy</AlertTitle>
-            <AlertDescription className="text-sm">
-              <p className="mb-2">
-                Before linking your League account, you'll be presented with clear consent dialogs explaining:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>What data we fetch from Riot API (rank, stats, achievements)</li>
-                <li>How we compute derived analytics</li>
-                <li>What gets published on-chain vs. stored privately</li>
-                <li>Your right to disconnect and request data deletion</li>
-              </ul>
-              <p className="mt-3">
-                We use <strong>ZK proofs</strong> to let you verify claims like "I'm Diamond rank" without exposing your PUUID or match history.
-              </p>
-            </AlertDescription>
-          </Alert>
-
-          <Card className="glass-card border-primary/30">
+          {/* User Consent Card */}
+          <Card className="glass-card border-border/50 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <CardHeader>
-              <CardTitle>Important Disclaimers</CardTitle>
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-lg bg-muted">
+                  <Eye className="h-6 w-6 text-foreground" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl">Your Control & Consent</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Full transparency before you link your account
+                  </p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <p>
-                • <strong>No Riot Endorsement:</strong> monad.passport is not endorsed by, affiliated with, or sponsored by Riot Games. 
-                League of Legends and all related assets are property of Riot Games.
-              </p>
-              <p>
-                • <strong>No In-Game Value:</strong> Badge NFTs and reputation points have no monetary or functional value within League of Legends. 
-                They exist purely on-chain as digital collectibles and reputation markers.
-              </p>
-              <p>
-                • <strong>Virtual Content License:</strong> Per Riot's TOS, virtual game content is a license that can be revoked. 
-                Our platform respects this by not claiming ownership of game assets.
-              </p>
-              <p>
-                • <strong>Data Accuracy:</strong> While we strive for accuracy, derived analytics are computed from Riot API data and may have delays or discrepancies.
-              </p>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-muted-foreground leading-relaxed">
+                  Before linking your League account, we'll clearly explain:
+                </p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="text-sm">What data we fetch from Riot's API</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="text-sm">How we compute analytics</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="text-sm">What goes on-chain vs. private</span>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
+                    <span className="text-sm">Your right to disconnect & delete</span>
+                  </div>
+                </div>
+                <Separator />
+                <p className="text-sm text-muted-foreground">
+                  We never sell data to third parties and fully comply with GDPR data deletion requests. Your privacy is non-negotiable.
+                </p>
+              </div>
             </CardContent>
           </Card>
+
+          {/* Footer Disclaimer */}
+          <div className="text-center pt-8 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+            <div className="max-w-3xl mx-auto p-6 rounded-lg bg-muted/20 border border-border/30">
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                monad.passport is not endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games 
+                or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games 
+                are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
