@@ -1,9 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Wallet, Info } from "lucide-react";
 import { WalletConnect } from "./WalletConnect";
 import { useAccount } from "wagmi";
-import { useEffect } from "react";
 
 interface Step2Props {
   onComplete: () => void;
@@ -12,11 +12,11 @@ interface Step2Props {
 export function Step2ConnectWallet({ onComplete }: Step2Props) {
   const { isConnected } = useAccount();
 
-  useEffect(() => {
+  const handleContinue = () => {
     if (isConnected) {
       onComplete();
     }
-  }, [isConnected, onComplete]);
+  };
 
   return (
     <div className="animate-fade-in">
@@ -40,14 +40,17 @@ export function Step2ConnectWallet({ onComplete }: Step2Props) {
 
           <div className="flex flex-col items-center justify-center py-8 space-y-4">
             {isConnected ? (
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                   <Wallet className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-lg font-semibold text-primary">Wallet Connected!</p>
                 <p className="text-sm text-muted-foreground">
-                  You can now proceed to the next step
+                  Click continue to proceed to the next step
                 </p>
+                <Button onClick={handleContinue} className="mt-4">
+                  Continue to Step 3
+                </Button>
               </div>
             ) : (
               <div className="text-center space-y-4">

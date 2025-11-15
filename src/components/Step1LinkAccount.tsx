@@ -49,13 +49,6 @@ export function Step1LinkAccount({ userId, onComplete }: Step1Props) {
     fetchLinkedAccounts();
   }, [userId]);
 
-  useEffect(() => {
-    // Auto-complete step if any account is verified
-    if (linkedAccounts.some(acc => acc.verified)) {
-      onComplete();
-    }
-  }, [linkedAccounts, onComplete]);
-
   const fetchLinkedAccounts = async () => {
     const { data, error } = await supabase
       .from("linked_accounts")
@@ -138,6 +131,7 @@ export function Step1LinkAccount({ userId, onComplete }: Step1Props) {
         });
         setShowVerificationModal(false);
         await fetchLinkedAccounts();
+        onComplete(); // Complete step after successful verification
       } else {
         toast({
           variant: "destructive",

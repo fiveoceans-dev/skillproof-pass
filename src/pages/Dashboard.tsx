@@ -56,13 +56,41 @@ export default function Dashboard() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  // Check completion status on mount to mark steps as completed
+  useEffect(() => {
+    if (!user) return;
+
+    const checkCompletionStatus = async () => {
+      const completed: number[] = [];
+
+      // Check Step 1: Verified League account
+      const { data: linkedAccounts } = await supabase
+        .from("linked_accounts")
+        .select("verified")
+        .eq("user_id", user.id);
+      
+      if (linkedAccounts?.some(acc => acc.verified)) {
+        completed.push(1);
+      }
+
+      // Check Step 2: Wallet connected
+      if (isConnected) {
+        completed.push(2);
+      }
+
+      setCompletedSteps(completed);
+    };
+
+    checkCompletionStatus();
+  }, [user, isConnected]);
+
   const handleStep1Complete = () => {
-    setCompletedSteps(prev => [...prev, 1]);
+    setCompletedSteps(prev => prev.includes(1) ? prev : [...prev, 1]);
     setCurrentStep(2);
   };
 
   const handleStep2Complete = () => {
-    setCompletedSteps(prev => [...prev, 2]);
+    setCompletedSteps(prev => prev.includes(2) ? prev : [...prev, 2]);
     setCurrentStep(3);
   };
 
