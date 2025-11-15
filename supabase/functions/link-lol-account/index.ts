@@ -44,7 +44,10 @@ Deno.serve(async (req) => {
 
     const { gameName, tagLine, region, userId }: LinkAccountRequest = await req.json();
 
+    console.log('Request received:', { gameName, tagLine, region, userId: userId ? 'provided' : 'missing' });
+
     if (!gameName || !tagLine || !region || !userId) {
+      console.error('Missing required fields:', { gameName: !!gameName, tagLine: !!tagLine, region: !!region, userId: !!userId });
       throw new Error('Missing required fields');
     }
 
@@ -53,19 +56,25 @@ Deno.serve(async (req) => {
     // Fetch Riot API key
     const riotApiKey = Deno.env.get('LOL_API');
     if (!riotApiKey) {
+      console.error('LOL_API environment variable not found');
       throw new Error('Riot API key not configured');
     }
+    console.log('API key found:', riotApiKey.substring(0, 10) + '...');
 
     // Step 1: Get account data (PUUID) from Riot Account API
     const routingRegion = getRoutingRegion(region);
-    const accountResponse = await fetch(
-      `https://${routingRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`,
-      {
-        headers: {
-          'X-Riot-Token': riotApiKey,
-        },
-      }
-    );
+    console.log('Using routing region:', routingRegion);
+    
+    const accountUrl = `https://${routingRegion}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`;
+    console.log('Fetching from URL:', accountUrl);
+    
+    const accountResponse = await fetch(accountUrl, {
+      headers: {
+        'X-Riot-Token': riotApiKey,
+      },
+    });
+
+    console.log('Account API response status:', accountResponse.status);
 
     if (!accountResponse.ok) {
       const errorText = await accountResponse.text();
@@ -74,17 +83,19 @@ Deno.serve(async (req) => {
     }
 
     const accountData = await accountResponse.json();
-    console.log('Account found:', accountData.gameName, '#', accountData.tagLine);
+    console.log('Account found:', accountData.gameName, '#', accountData.tagLine, 'PUUID:', accountData.puuid);
 
     // Step 2: Get summoner data using PUUID
-    const summonerResponse = await fetch(
-      `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountData.puuid}`,
-      {
-        headers: {
-          'X-Riot-Token': riotApiKey,
-        },
-      }
-    );
+    const summonerUrl = `https://${region}.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/${accountData.puuid}`;
+    console.log('Fetching summoner from URL:', summonerUrl);
+    
+    const summonerResponse = await fetch(summonerUrl, {
+      headers: {
+        'X-Riot-Token': riotApiKey,
+      },
+    });
+
+    console.log('Summoner API response status:', summonerResponse.status);
 
     if (!summonerResponse.ok) {
       const errorText = await summonerResponse.text();
@@ -197,9 +208,18 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error in link-lol-account:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: typeof error,
+      error: error,
+    });
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : String(error)
+      }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
