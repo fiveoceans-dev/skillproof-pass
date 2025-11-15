@@ -1,1 +1,7 @@
 project_id = "qwqykiuedxyfzaeavgqr"
+
+[functions.link-lol-account]
+verify_jwt = false
+
+[functions.verify-lol-account]
+verify_jwt = false

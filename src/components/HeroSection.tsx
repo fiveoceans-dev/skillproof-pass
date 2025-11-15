@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Shield, Coins, Award, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroBg from "@/assets/hero-bg.jpg";
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
+  
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       {/* Background with overlay */}
@@ -38,11 +41,11 @@ export const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-            <Button variant="hero" size="xl">
+            <Button variant="hero" size="xl" onClick={() => navigate("/auth")}>
               Connect & Link Account
             </Button>
-            <Button variant="outline" size="xl">
-              View Demo Dashboard
+            <Button variant="outline" size="xl" onClick={() => navigate("/dashboard")}>
+              View Dashboard
             </Button>
           </div>
 
