@@ -112,6 +112,14 @@ export default function Auth() {
                 ? "Enter your credentials to access your dashboard"
                 : "Create an account to start linking your League account"}
             </CardDescription>
+            {isLogin && (
+              <Alert className="mt-4 bg-primary/10 border-primary/30">
+                <AlertCircle className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-sm">
+                  <strong>Try it out:</strong> Click "Try Demo Account" below to test with pre-filled credentials
+                </AlertDescription>
+              </Alert>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
