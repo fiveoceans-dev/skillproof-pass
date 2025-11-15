@@ -14,38 +14,35 @@ export const AccountLinkSection = () => {
     <section id="how-it-works" className="py-20 bg-card/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Link Your League Account</h2>
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h2 className="text-4xl font-bold mb-4">Link Your Account</h2>
             <p className="text-muted-foreground text-lg">
-              Three simple steps to get your on-chain gaming passport
+              Connect League of Legends. Build on-chain reputation.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <div className={`glass-card p-6 rounded-xl text-center transition-all ${step >= 1 ? 'border-primary' : ''}`}>
+            <div className={`glass-card p-6 rounded-xl text-center transition-all animate-fade-in-up ${step >= 1 ? 'border-primary' : ''}`} style={{ animationDelay: '0.2s' }}>
               <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mx-auto mb-4 font-bold">
                 1
               </div>
               <h3 className="font-semibold mb-2">Connect Wallet</h3>
-              <p className="text-sm text-muted-foreground">Link your MetaMask or WalletConnect</p>
               {step > 1 && <CheckCircle2 className="h-5 w-5 text-primary mx-auto mt-3" />}
             </div>
 
-            <div className={`glass-card p-6 rounded-xl text-center transition-all ${step >= 2 ? 'border-primary' : ''}`}>
+            <div className={`glass-card p-6 rounded-xl text-center transition-all animate-fade-in-up ${step >= 2 ? 'border-primary' : ''}`} style={{ animationDelay: '0.4s' }}>
               <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mx-auto mb-4 font-bold">
                 2
               </div>
               <h3 className="font-semibold mb-2">Verify Ownership</h3>
-              <p className="text-sm text-muted-foreground">Complete in-game verification</p>
               {step > 2 && <CheckCircle2 className="h-5 w-5 text-primary mx-auto mt-3" />}
             </div>
 
-            <div className={`glass-card p-6 rounded-xl text-center transition-all ${step >= 3 ? 'border-primary' : ''}`}>
+            <div className={`glass-card p-6 rounded-xl text-center transition-all animate-fade-in-up ${step >= 3 ? 'border-primary' : ''}`} style={{ animationDelay: '0.6s' }}>
               <div className="w-12 h-12 rounded-full bg-primary/20 text-primary flex items-center justify-center mx-auto mb-4 font-bold">
                 3
               </div>
               <h3 className="font-semibold mb-2">Start Earning</h3>
-              <p className="text-sm text-muted-foreground">Mint badges & accumulate points</p>
               {step > 3 && <CheckCircle2 className="h-5 w-5 text-primary mx-auto mt-3" />}
             </div>
           </div>
@@ -64,8 +61,7 @@ export const AccountLinkSection = () => {
               <Alert className="bg-muted/50 border-accent/30">
                 <Info className="h-4 w-4 text-accent" />
                 <AlertDescription>
-                  <strong>Privacy First:</strong> We only store derived analytics on-chain, never raw match data or personal identifiers. 
-                  Your PUUID remains private and is never published.
+                  <strong>Privacy First:</strong> Only derived analytics on-chain, never raw match data.
                 </AlertDescription>
               </Alert>
 

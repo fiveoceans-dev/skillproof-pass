@@ -7,10 +7,10 @@ export const LegalSection = () => {
     <section id="legal" className="py-20 bg-card/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto space-y-8">
-          <div className="text-center">
-            <h2 className="text-4xl font-bold mb-4">Legal & Compliance</h2>
+          <div className="text-center animate-fade-in-up">
+            <h2 className="text-4xl font-bold mb-4">Privacy & Compliance</h2>
             <p className="text-muted-foreground text-lg">
-              Transparent data usage and Riot Games policy compliance
+              Privacy-first. Riot-compliant. Your data, protected.
             </p>
           </div>
 
@@ -31,37 +31,33 @@ export const LegalSection = () => {
           </Alert>
 
           <div className="grid md:grid-cols-2 gap-6">
-            <Card className="glass-card">
+            <Card className="glass-card animate-fade-in-up hover:animate-pulse-glow" style={{ animationDelay: '0.2s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Lock className="h-5 w-5 text-accent" />
-                  What We Store On-Chain
+                  On-Chain
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>✓ Wallet-linked identity registry</p>
-                <p>✓ Derived rank summaries (e.g., "Diamond IV")</p>
-                <p>✓ Achievement badge metadata</p>
-                <p>✓ Aggregated statistics (win rate, KDA trends)</p>
-                <p>✓ ZK proof anchors for rank verification</p>
-                <p>✓ Tokenized reputation points</p>
+                <p>✓ Identity registry</p>
+                <p>✓ Rank summaries</p>
+                <p>✓ Badge metadata</p>
+                <p>✓ ZK proof anchors</p>
               </CardContent>
             </Card>
 
-            <Card className="glass-card">
+            <Card className="glass-card animate-fade-in-up hover:animate-pulse-glow" style={{ animationDelay: '0.4s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-destructive" />
-                  What We DON'T Store
+                  Off-Chain
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
-                <p>✗ Raw match timelines or game logs</p>
-                <p>✗ PUUID or Riot-specific identifiers</p>
-                <p>✗ Proprietary Riot assets or artwork</p>
-                <p>✗ Personally identifiable information</p>
-                <p>✗ Detailed match-by-match history</p>
-                <p>✗ Other players' data without consent</p>
+                <p>✗ Raw match timelines</p>
+                <p>✗ PUUID identifiers</p>
+                <p>✗ Riot assets</p>
+                <p>✗ Personal info</p>
               </CardContent>
             </Card>
           </div>
