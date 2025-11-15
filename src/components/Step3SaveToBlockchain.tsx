@@ -74,10 +74,14 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
 
     // Ensure correct network
     if (chainId !== monadTestnet.id) {
+      console.log('⚠️ Wrong network detected. Current:', chainId, 'Required:', monadTestnet.id);
       try {
+        console.log('🔄 Attempting to switch to Monad testnet...');
         await switchChain({ chainId: monadTestnet.id });
+        console.log('✅ Network switched successfully');
         toast({ title: "Network Switched", description: `Switched to ${monadTestnet.name}` });
       } catch (e: any) {
+        console.error('❌ Network switch failed:', e);
         setErrorMsg("Please switch your wallet to Monad testnet and try again.");
         toast({ variant: "destructive", title: "Wrong Network", description: "Switch to Monad testnet to continue." });
         return;
@@ -116,29 +120,46 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
       const dataString = JSON.stringify(credentialsData);
       const dataHash = keccak256(toHex(dataString));
 
-      console.log('🚀 Sending transaction to Monad testnet:', {
+      console.log('🚀 Preparing transaction to Monad testnet:', {
         chainId: monadTestnet.id,
         chainName: monadTestnet.name,
         to: address,
         credentialsHash: dataHash,
         accounts: linkedAccounts.length
       });
+
+      console.log('📤 Calling sendTransaction - this should open your wallet...');
       
       // Send real transaction to Monad testnet with credentials hash in data field
-      sendTransaction({
+      const result = sendTransaction({
         chainId: monadTestnet.id,
         to: address, // Send to self to store data on-chain
         value: parseEther("0"), // No value transfer, just data storage
         data: dataHash, // Store credentials hash in transaction data
+      }, {
+        onSuccess: (hash) => {
+          console.log('✅ Transaction sent successfully, hash:', hash);
+        },
+        onError: (error) => {
+          console.error('❌ Transaction failed:', error);
+          setErrorMsg(error.message || 'Transaction failed');
+          toast({
+            variant: "destructive",
+            title: "Transaction Failed",
+            description: error.message || "Failed to send transaction",
+          });
+        }
       });
 
+      console.log('📝 sendTransaction result:', result);
+
       toast({
-        title: "Transaction initiated",
-        description: "Please confirm the transaction in your wallet",
+        title: "Check Your Wallet",
+        description: "Please confirm the transaction in your wallet popup",
       });
 
     } catch (error: any) {
-      console.error('Error saving to blockchain:', error);
+      console.error('❌ Error preparing transaction:', error);
       setErrorMsg(error?.message || 'Failed to save credentials');
       toast({
         variant: "destructive",
