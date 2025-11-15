@@ -26,7 +26,7 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
   const { toast } = useToast();
   const { address } = useAccount();
   const chainId = useChainId();
-  const { switchChain } = useSwitchChain();
+  const { switchChain, switchChainAsync, isPending: isSwitching } = useSwitchChain();
   const { data: hash, isPending, sendTransaction } = useSendTransaction();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
@@ -284,6 +284,38 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
             </AlertDescription>
           </Alert>
 
+          {chainId !== monadTestnet.id && (
+            <Alert className="bg-destructive/10 border-destructive/30">
+              <Info className="h-4 w-4 text-destructive" />
+              <AlertDescription className="text-sm flex items-center justify-between gap-3">
+                <span>
+                  You're on the wrong network (chain {chainId}). Switch to {monadTestnet.name} (ID {monadTestnet.id}) to continue.
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await switchChainAsync({ chainId: monadTestnet.id });
+                      toast({ title: "Network Switched", description: `Switched to ${monadTestnet.name}` });
+                    } catch (e: any) {
+                      toast({ variant: "destructive", title: "Switch Failed", description: e?.message || 'Please switch network in your wallet' });
+                    }
+                  }}
+                >
+                  {isSwitching ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Switching...
+                    </>
+                  ) : (
+                    'Switch to Monad'
+                  )}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex items-center justify-center py-6">
             <div className="relative">
               <img
@@ -407,7 +439,7 @@ export function Step3SaveToBlockchain({ canProceed }: Step3Props) {
 
           <Button
             onClick={handleSaveToBlockchain}
-            disabled={(isPending || isConfirming) || (!storeAchievements && !mintNFT)}
+            disabled={(isPending || isConfirming) || (!storeAchievements && !mintNFT) || (chainId !== monadTestnet.id)}
             className="w-full"
             size="lg"
           >
