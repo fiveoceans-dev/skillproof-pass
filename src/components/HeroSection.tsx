@@ -1,0 +1,80 @@
+import { Button } from "@/components/ui/button";
+import { Shield, Coins, Award, Zap } from "lucide-react";
+import heroBg from "@/assets/hero-bg.jpg";
+
+export const HeroSection = () => {
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      {/* Background with overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src={heroBg} 
+          alt="" 
+          className="w-full h-full object-cover opacity-30"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/80 to-background" />
+      </div>
+
+      {/* Content */}
+      <div className="container mx-auto px-4 z-10 text-center">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="inline-block mb-4">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/50 border border-primary/30">
+              <Shield className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground">Powered by Monad & ZK Proofs</span>
+            </div>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+            Prove Your{" "}
+            <span className="text-primary glow-text">Rank</span>
+            <br />
+            Own Your{" "}
+            <span className="text-accent">Legacy</span>
+          </h1>
+
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Transform your League of Legends achievements into verifiable on-chain credentials. 
+            Mint badge NFTs, earn tokenized reputation, and prove your skill with zero-knowledge proofs—all while respecting your privacy.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+            <Button variant="hero" size="xl">
+              Connect & Link Account
+            </Button>
+            <Button variant="outline" size="xl">
+              View Demo Dashboard
+            </Button>
+          </div>
+
+          {/* Feature highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16">
+            <div className="glass-card p-6 rounded-xl space-y-3 hover:border-primary/50 transition-all">
+              <Award className="h-8 w-8 text-primary mx-auto" />
+              <h3 className="font-semibold text-lg">Badge NFTs</h3>
+              <p className="text-sm text-muted-foreground">
+                Mint verifiable achievement badges for your ranks & milestones
+              </p>
+            </div>
+
+            <div className="glass-card p-6 rounded-xl space-y-3 hover:border-accent/50 transition-all">
+              <Zap className="h-8 w-8 text-accent mx-auto" />
+              <h3 className="font-semibold text-lg">ZK Privacy</h3>
+              <p className="text-sm text-muted-foreground">
+                Prove your rank without exposing personal match data
+              </p>
+            </div>
+
+            <div className="glass-card p-6 rounded-xl space-y-3 hover:border-primary/50 transition-all">
+              <Coins className="h-8 w-8 text-primary mx-auto" />
+              <h3 className="font-semibold text-lg">Tokenized Points</h3>
+              <p className="text-sm text-muted-foreground">
+                Earn on-chain reputation points for coaching & rewards
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
